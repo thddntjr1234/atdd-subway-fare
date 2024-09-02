@@ -2,13 +2,16 @@ package nextstep.cucumber.steps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.java8.En;
 import io.restassured.path.json.JsonPath;
 import java.util.List;
+import java.util.Map;
 import nextstep.cucumber.AcceptanceContext;
 import nextstep.subway.acceptance.PathCommonApi;
+import nextstep.subway.domain.path.dto.PathResponse;
 import nextstep.subway.domain.station.dto.StationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,5 +63,25 @@ public class PathStepDef implements En {
     Long upStationId = 12312L;
     Long downStationId = ((StationResponse) context.store.get(downStation)).getId();
     context.response = PathCommonApi.findLinePath(upStationId, downStationId);
+  }
+
+  @When("{string}에서 {string}까지의 최소 시간 기준으로 경로 조회를 요청")
+  public void 출발역에서_도착역까지의_최소_시간_기준_경로_조회(String upStation, String downStation) {
+    Long upStationId = ((StationResponse) context.store.get(upStation)).getId();
+    Long downStationId = ((StationResponse) context.store.get(downStation)).getId();
+    context.response = PathCommonApi.findLinePath(upStationId, downStationId);
+  }
+
+  @Then("최소 시간 기준 경로를 응답")
+  public void 최소_시간_경로_응답(DataTable dataTable) {
+    Map<String, String> data = dataTable.asMap();
+    assertThat(context.response.jsonPath().getLong("requiredTime")).isEqualTo(data.get("requiredTime"));
+  }
+
+  @Then("총 거리와 소요 시간을 함께 응답함")
+  public void 총_거리_및_소요_시간을_함께_응답() {
+    PathResponse pathResponse = context.response.as(PathResponse.class);
+    assertThat(pathResponse.getDistance()).isNotNull();
+    assertThat(pathResponse.getRequiredTime()).isNotNull();
   }
 }
