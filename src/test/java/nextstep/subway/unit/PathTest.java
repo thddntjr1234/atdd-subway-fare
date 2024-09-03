@@ -38,10 +38,10 @@ public class PathTest {
         남부터미널역 = new Station(4L, "남부터미널역");
         석남역 = new Station(5L, "석남역");
 
-        이호선 = new Line("2호선", "green", new Section(교대역, 강남역, 10));
-        신분당선 = new Line("신분당선", "green", new Section(강남역, 양재역, 10));
-        삼호선 = new Line("3호선", "green", new Section(교대역, 남부터미널역, 2));
-        삼호선.addSection(new Section(남부터미널역, 양재역, 3));
+        이호선 = new Line("2호선", "green", new Section(교대역, 강남역, 10, 8));
+        신분당선 = new Line("신분당선", "green", new Section(강남역, 양재역, 10, 10));
+        삼호선 = new Line("3호선", "green", new Section(교대역, 남부터미널역, 2, 4));
+        삼호선.addSection(new Section(남부터미널역, 양재역, 3, 10));
 
         구간_목록 = List.of(이호선, 신분당선, 삼호선).stream()
                 .map(Line::getSections)
@@ -62,6 +62,18 @@ public class PathTest {
 
             assertThat(stations.size()).isEqualTo(3);
             assertThat(distance).isEqualTo(5L);
+        }
+        // 기존 테스트는 남기고 신규 테스트로 TDD를 진행
+        @DisplayName("연결된 역에 대해 경로를 탐색하면 최소 시간 기준 경로를 반환한다.")
+        @Test
+        void successFindEdgeByLeastTime() {
+            PathFinder pathFinder = new PathFinder();
+            GraphPath graphPath = pathFinder.findPath(교대역, 양재역, 구간_목록).get();
+            List stations = graphPath.getVertexList();
+            Long requiredTime = (long) graphPath.getWeight();
+
+            assertThat(stations.size()).isEqualTo(3);
+            assertThat(requiredTime).isEqualTo(14);
         }
     }
 
