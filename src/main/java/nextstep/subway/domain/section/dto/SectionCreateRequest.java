@@ -6,6 +6,7 @@ public class SectionCreateRequest {
     private Long upStationId;
     private Long downStationId;
     private int distance;
+    private int transitTime;
 
     public SectionCreateRequest() {
     }
@@ -16,10 +17,18 @@ public class SectionCreateRequest {
         this.distance = distance;
     }
 
+    public SectionCreateRequest(Long upStationId, Long downStationId, int distance, int transitTime) {
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
+        this.distance = distance;
+        this.transitTime = transitTime;
+    }
+
     public static SectionCreateRequest of(Section section) {
         return new SectionCreateRequest(section.getUpwardStation().getId(),
                 section.getDownwardStation().getId(),
-                section.getDistance());
+                section.getDistance(),
+                section.getTransitTime());
     }
 
     public Long getUpStationId() {
@@ -32,5 +41,9 @@ public class SectionCreateRequest {
 
     public int getDistance() {
         return distance;
+    }
+
+    public int getTransitTime() {
+        return transitTime;
     }
 }
