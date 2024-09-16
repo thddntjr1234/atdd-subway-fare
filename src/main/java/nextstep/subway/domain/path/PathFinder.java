@@ -8,11 +8,11 @@ import org.jgrapht.graph.WeightedMultigraph;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
-public class PathFinder {
+public abstract class PathFinder {
 
-    private WeightedMultigraph<Station, SectionEdge> graph;
+    protected WeightedMultigraph<Station, SectionEdge> graph;
+    protected GraphPath path;
 
     public PathFinder() {
         graph = new WeightedMultigraph<>(SectionEdge.class);
@@ -23,6 +23,7 @@ public class PathFinder {
 
         setUpWeightedEdges(edges);
         DijkstraShortestPath dijkstraShortestPath = new DijkstraShortestPath(graph);
+        path = dijkstraShortestPath.getPath(source, target);
         return Optional.ofNullable(dijkstraShortestPath.getPath(source, target));
     }
 
@@ -36,15 +37,9 @@ public class PathFinder {
         }
     }
 
-    private void setUpWeightedEdges(List<Section> edges) {
-        edges.stream()
-                .flatMap(edge -> Stream.of(edge.getUpwardStation(), edge.getDownwardStation()))
-                .distinct()
-                .forEach(graph::addVertex);
+    abstract void setUpWeightedEdges(List<Section> edges);
 
-        edges.forEach(edge -> {
-            SectionEdge sectionEdge = graph.addEdge(edge.getUpwardStation(), edge.getDownwardStation());
-            graph.setEdgeWeight(sectionEdge, edge.getDistance());
-        });
-    }
+    abstract Long getDistance();
+
+    abstract Long getTransitTime();
 }

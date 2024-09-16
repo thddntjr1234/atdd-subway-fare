@@ -12,4 +12,12 @@ public class SectionEdge extends DefaultWeightedEdge {
     public SectionEdge(Section section) {
         this.section = section;
     }
+
+    public void addSection(Section section) {
+        this.section = section;
+    }
+
+    public Section getSection() {
+        return section;
+    }
 }

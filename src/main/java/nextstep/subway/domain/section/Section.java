@@ -18,14 +18,24 @@ public class Section {
     private Station downStation;
     @Column(nullable = false)
     private int distance;
+    @Column(nullable = false)
+    private int transitTime;
 
     public Section() {
     }
 
-    public Section(Station upwardStation, Station downwardStation, int distance) {
-        this.upStation = upwardStation;
-        this.downStation = downwardStation;
+    public Section(Station upStation, Station downStation, int distance) {
+        this.upStation = upStation;
+        this.downStation = downStation;
         this.distance = distance;
+        this.transitTime = 0;
+    }
+
+    public Section(Station upStation, Station downStation, int distance, int transitTime) {
+        this.upStation = upStation;
+        this.downStation = downStation;
+        this.distance = distance;
+        this.transitTime = transitTime;
     }
 
     public void updateSection(Station upStation, Station downStation, int distance) {
@@ -48,6 +58,10 @@ public class Section {
 
     public int getDistance() {
         return distance;
+    }
+
+    public int getTransitTime() {
+        return transitTime;
     }
 
     @Override

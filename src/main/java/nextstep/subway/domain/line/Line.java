@@ -34,7 +34,7 @@ public class Line {
     }
 
     public void addSection(Section section) {
-        sections.addSection(new Section(section.getUpwardStation(), section.getDownwardStation(), section.getDistance()));
+        sections.addSection(new Section(section.getUpwardStation(), section.getDownwardStation(), section.getDistance(), section.getTransitTime()));
     }
 
     public void deleteSection(Station station) {
