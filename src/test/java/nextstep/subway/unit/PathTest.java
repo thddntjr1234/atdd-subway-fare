@@ -1,17 +1,17 @@
 package nextstep.subway.unit;
 
 import nextstep.subway.domain.line.Line;
+import nextstep.subway.domain.path.LeastDistanceFinder;
+import nextstep.subway.domain.path.LeastTimeFinder;
 import nextstep.subway.domain.path.PathFinder;
 import nextstep.subway.domain.section.Section;
 import nextstep.subway.domain.station.Station;
-import org.assertj.core.api.Assertions;
 import org.jgrapht.GraphPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +55,7 @@ public class PathTest {
         @DisplayName("연결된 역에 대해 경로를 탐색하면 최단거리를 반환한다.")
         @Test
         void successFindEdge() {
-            PathFinder pathFinder = new PathFinder();
+            PathFinder pathFinder = new LeastDistanceFinder();
             GraphPath graphPath = pathFinder.findPath(교대역, 양재역, 구간_목록).get();
             List stations = graphPath.getVertexList();
             Long distance = (long) graphPath.getWeight();
@@ -67,13 +67,13 @@ public class PathTest {
         @DisplayName("연결된 역에 대해 경로를 탐색하면 최소 시간 기준 경로를 반환한다.")
         @Test
         void successFindEdgeByLeastTime() {
-            PathFinder pathFinder = new PathFinder();
+            PathFinder pathFinder = new LeastTimeFinder();
             GraphPath graphPath = pathFinder.findPath(교대역, 양재역, 구간_목록).get();
             List stations = graphPath.getVertexList();
-            Long requiredTime = (long) graphPath.getWeight();
+            Long transitTime = (long) graphPath.getWeight();
 
             assertThat(stations.size()).isEqualTo(3);
-            assertThat(requiredTime).isEqualTo(14);
+            assertThat(transitTime).isEqualTo(14);
         }
     }
 
@@ -83,7 +83,7 @@ public class PathTest {
         @DisplayName("출발역과 도착역이 같은 경우 구간 탐색에 실패한다")
         @Test
         void failFindPathWhenSameStations() {
-            PathFinder pathFinder = new PathFinder();
+            PathFinder pathFinder = new LeastDistanceFinder();
             assertThatThrownBy(() -> pathFinder.findPath(교대역, 교대역, 구간_목록).get().getVertexList())
                     .isInstanceOf(IllegalArgumentException.class);
         }
@@ -91,7 +91,7 @@ public class PathTest {
         @DisplayName("출발역과 도착역이 연결되어 있지 않은 경우 구간 탐색에 실패한다.")
         @Test
         void failFindPathWhenNotConnected() {
-            PathFinder pathFinder = new PathFinder();
+            PathFinder pathFinder = new LeastDistanceFinder();
             assertThatThrownBy(() -> pathFinder.findPath(교대역, 석남역, 구간_목록).get().getVertexList())
                     .isInstanceOf(IllegalArgumentException.class);
         }
@@ -99,7 +99,7 @@ public class PathTest {
         @DisplayName("존재하지 않은 출발역이나 도착역을 조회하는 경우 구간 탐색에 실패한다.")
         @Test
         void failFindPathWhenNotExist() {
-            PathFinder pathFinder = new PathFinder();
+            PathFinder pathFinder = new LeastDistanceFinder();
             assertThatThrownBy(() -> pathFinder.findPath(교대역, 교대역, 구간_목록).get().getVertexList())
                     .isInstanceOf(IllegalArgumentException.class);
         }
