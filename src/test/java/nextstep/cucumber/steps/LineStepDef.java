@@ -27,7 +27,8 @@ public class LineStepDef implements En {
           e.get("color"),
           ((StationResponse) context.store.get(e.get("upStation"))).getId(),
           ((StationResponse) context.store.get(e.get("downStation"))).getId(),
-          Integer.parseInt(e.get("distance")));
+          Integer.parseInt(e.get("distance")),
+          Integer.parseInt(e.get("transitTime")));
       var lineId = LineCommonApi.createLine(request).jsonPath().getLong("id");
       context.store.put(e.get("name"), lineId);
     });

@@ -26,7 +26,8 @@ public class SectionStepDef {
       var request = new SectionCreateRequest(
           ((StationResponse) context.store.get(e.get("upStation"))).getId(),
           ((StationResponse) context.store.get(e.get("downStation"))).getId(),
-          Integer.parseInt(e.get("distance")));
+          Integer.parseInt(e.get("distance")),
+          Integer.parseInt(e.get("transitTime")));
 
       var lineId = ((Long) context.store.get(e.get("name")));
       LineCommonApi.addSection(lineId, request);
