@@ -1,9 +1,12 @@
 package nextstep.cucumber.steps;
 
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.En;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
+import nextstep.cucumber.AcceptanceContext;
+import nextstep.subway.acceptance.StationCommonApi;
+import nextstep.subway.domain.station.dto.StationResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -14,13 +17,23 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StationStepDef implements En {
-    ExtractableResponse<Response> response;
+
+    @Autowired
+    private AcceptanceContext context;
 
     public StationStepDef() {
+        Given("지하철역을 생성하고", (DataTable dataTable) -> {
+            List<Map<String, String>> stationNames = dataTable.asMaps();
+            stationNames.forEach(e -> {
+                var response = StationCommonApi.createStation(e.get("name")).as(StationResponse.class);
+                context.store.put(response.getName(), response);
+            });
+        });
+
         When("지하철역을 생성하면", () -> {
             Map<String, String> params = new HashMap<>();
             params.put("name", "강남역");
-            response = RestAssured.given().log().all()
+            context.response = RestAssured.given().log().all()
                     .body(params)
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .when()
@@ -30,7 +43,7 @@ public class StationStepDef implements En {
         });
 
         Then("지하철역이 생성된다", () -> {
-            assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+            assertThat(context.response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         });
 
         Then("지하철역 목록 조회 시 생성한 역을 찾을 수 있다", () -> {
