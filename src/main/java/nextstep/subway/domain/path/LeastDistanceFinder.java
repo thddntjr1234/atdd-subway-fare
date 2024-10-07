@@ -24,7 +24,7 @@ public class LeastDistanceFinder extends PathFinder {
     }
 
     @Override
-    Long getDistance() {
+    public Long getDistance() {
         List<SectionEdge> edgeList = path.getEdgeList();
 
         if (edgeList.isEmpty()) {
@@ -35,7 +35,7 @@ public class LeastDistanceFinder extends PathFinder {
     }
 
     @Override
-    Long getTransitTime() {
+    public Long getTransitTime() {
         List<SectionEdge> edgeList = path.getEdgeList();
 
         if (edgeList.isEmpty()) {
@@ -45,5 +45,16 @@ public class LeastDistanceFinder extends PathFinder {
         return edgeList.stream()
                 .mapToLong(sectionEdge -> sectionEdge.getSection().getTransitTime())
                 .sum();
+    }
+
+    @Override
+    public Long getFare() {
+        List<SectionEdge> edgeList = path.getEdgeList();
+
+        if (edgeList.isEmpty()) {
+            return null;
+        }
+
+        return calculateFare((long) path.getWeight());
     }
 }

@@ -4,8 +4,10 @@ import nextstep.subway.domain.line.Line;
 import nextstep.subway.domain.path.LeastDistanceFinder;
 import nextstep.subway.domain.path.LeastTimeFinder;
 import nextstep.subway.domain.path.PathFinder;
+import nextstep.subway.domain.path.PathType;
 import nextstep.subway.domain.section.Section;
 import nextstep.subway.domain.station.Station;
+import nextstep.subway.utils.SubwayFixture;
 import org.jgrapht.GraphPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static nextstep.subway.utils.SubwayFixture.*;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("경로 조회기능 단위 테스트")
@@ -32,16 +35,16 @@ public class PathTest {
 
     @BeforeEach
     void setUp() {
-        교대역 = new Station(1L, "교대역");
-        강남역 = new Station(2L, "강남역");
-        양재역 = new Station(3L, "양재역");
-        남부터미널역 = new Station(4L, "남부터미널역");
-        석남역 = new Station(5L, "석남역");
+        교대역 = createStation(1L, "교대역");
+        강남역 = createStation(2L, "강남역");
+        양재역 = createStation(3L, "양재역");
+        남부터미널역 = createStation(4L, "남부터미널역");
+        석남역 = createStation(5L, "석남역");
 
-        이호선 = new Line("2호선", "green", new Section(교대역, 강남역, 10, 8));
-        신분당선 = new Line("신분당선", "green", new Section(강남역, 양재역, 10, 10));
-        삼호선 = new Line("3호선", "green", new Section(교대역, 남부터미널역, 2, 4));
-        삼호선.addSection(new Section(남부터미널역, 양재역, 3, 10));
+        이호선 = createLine("2호선", "green", createSection(교대역, 강남역, 10, 8));
+        신분당선 = createLine("신분당선", "green", createSection(강남역, 양재역, 10, 10));
+        삼호선 = createLine("3호선", "green", createSection(교대역, 남부터미널역, 2, 4));
+        삼호선.addSection(createSection(남부터미널역, 양재역, 3, 10));
 
         구간_목록 = List.of(이호선, 신분당선, 삼호선).stream()
                 .map(Line::getSections)
@@ -75,6 +78,25 @@ public class PathTest {
             assertThat(stations.size()).isEqualTo(3);
             assertThat(transitTime).isEqualTo(14);
         }
+
+        @DisplayName("연결된 역에 대해 경로를 탐색하면 경로와 함께 요금 정보를 반환한다.")
+        @Test
+        void fare() {
+            // 경로 탐색
+            PathFinder pathFinder = new LeastDistanceFinder();
+            GraphPath graphPath = pathFinder.findPath(교대역, 양재역, 구간_목록).get();
+            List stations = graphPath.getVertexList();
+            Long distance = (long) graphPath.getWeight();
+
+            // pathFinder의 getFare() 메서드를 직접 사용하기 위해 pathFinder 내부의 추상 메서드의 접근제어자를 public으로 변경
+            // 테스트를 위해 default 접근 제어자를 public으로 변경하는 것이 과연 올바른 일일까?
+            Long fare = pathFinder.getFare();
+
+            assertThat(stations.size()).isEqualTo(3);
+            assertThat(distance).isEqualTo(5L);
+            assertThat(fare).isNotNull();
+            assertThat(fare).isEqualTo(1250L);
+        }
     }
 
     @DisplayName("경로 탐색 실패 케이스")
@@ -102,6 +124,22 @@ public class PathTest {
             PathFinder pathFinder = new LeastDistanceFinder();
             assertThatThrownBy(() -> pathFinder.findPath(교대역, 교대역, 구간_목록).get().getVertexList())
                     .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @DisplayName("경로 탐색 구현체 주입 테스트")
+    @Nested
+    class pathFinderTest {
+        @DisplayName("최소 시간 경로 탐색 구현체를 주입받는다.")
+        @Test
+        void getLeastTimeFinder() {
+            assertThat(PathType.from("DURATION").findPathFinder()).isInstanceOf(LeastTimeFinder.class);
+        }
+
+        @DisplayName("최단 경로 탐색 구현체를 주입받는다.")
+        @Test
+        void getLeastDistanceFinder() {
+            assertThat(PathType.from("DISTANCE").findPathFinder()).isInstanceOf(LeastDistanceFinder.class);
         }
     }
 }
