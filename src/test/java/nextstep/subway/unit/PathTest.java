@@ -1,5 +1,6 @@
 package nextstep.subway.unit;
 
+import nextstep.subway.domain.line.Fare;
 import nextstep.subway.domain.line.Line;
 import nextstep.subway.domain.path.LeastDistanceFinder;
 import nextstep.subway.domain.path.LeastTimeFinder;

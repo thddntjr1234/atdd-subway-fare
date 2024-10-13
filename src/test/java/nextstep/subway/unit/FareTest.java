@@ -1,5 +1,6 @@
 package nextstep.subway.unit;
 
+import nextstep.subway.domain.line.Fare;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
