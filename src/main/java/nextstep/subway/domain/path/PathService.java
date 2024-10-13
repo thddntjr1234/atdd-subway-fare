@@ -2,6 +2,7 @@ package nextstep.subway.domain.path;
 
 import java.util.Map;
 
+import nextstep.subway.domain.line.Fare;
 import nextstep.subway.domain.line.Line;
 import nextstep.subway.domain.line.LineRepository;
 import nextstep.subway.domain.path.dto.PathResponse;
@@ -46,9 +47,12 @@ public class PathService {
                 .map(StationResponse::of)
                 .collect(Collectors.toList());
 
-        // 거리, 소요시간을 구하는 방식을 서비스에서 분기로 처리하면 코드가 너무 더러워질 것 같아
-        // pathFinder가 각 데이터를 반환하는 방식으로 변경
-        return new PathResponse(stationResponses, pathFinder.getDistance(), pathFinder.getTransitTime(), pathFinder.getFare());
+        Long distance = pathFinder.getDistance();
+        Long transitTime = pathFinder.getTransitTime();
+        Fare fare = new Fare();
+        fare.calculateDistanceBasedFare(distance);
+
+        return new PathResponse(stationResponses, distance, transitTime, fare.getFare());
     }
 
     public Station findByStationId(Long stationId) {
