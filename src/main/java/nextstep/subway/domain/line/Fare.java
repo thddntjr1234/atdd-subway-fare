@@ -1,11 +1,14 @@
 package nextstep.subway.domain.line;
 
+import java.util.List;
+
 public class Fare {
     private static final long DEFAULT_FARE = 1250L;
+
     private Long fare;
 
     public Fare() {
-        fare = DEFAULT_FARE;
+        this.fare = DEFAULT_FARE;
     }
 
     public Fare(Long fare) {
@@ -32,6 +35,21 @@ public class Fare {
         long over50km = distance - 50;
         this.fare = totalFare + (long) ((Math.ceil((over50km - 1) / 8) + 1) * 100);
     }
+
+    public void calculateDistanceBasedFare(long distance, List<Line> lines) {
+        calculateDistanceBasedFare(distance);
+        calculateHighestAdditionalFare(lines);
+    }
+
+    private void calculateHighestAdditionalFare(List<Line> lines) {
+        Long highestAdditionalFare = lines.stream()
+                .map(Line::getAdditionalFare)
+                .max(Long::compare)
+                .get();
+
+        this.fare += highestAdditionalFare;
+    }
+
 
     public Long getFare() {
         return fare;

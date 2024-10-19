@@ -50,7 +50,7 @@ public class PathService {
         Long distance = pathFinder.getDistance();
         Long transitTime = pathFinder.getTransitTime();
         Fare fare = new Fare();
-        fare.calculateDistanceBasedFare(distance);
+        fare.calculateDistanceBasedFare(distance, lines);
 
         return new PathResponse(stationResponses, distance, transitTime, fare.getFare());
     }
