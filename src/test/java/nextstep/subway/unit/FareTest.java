@@ -1,5 +1,6 @@
 package nextstep.subway.unit;
 
+import nextstep.member.domain.Member;
 import nextstep.subway.domain.line.Fare;
 import nextstep.subway.domain.line.Line;
 import nextstep.subway.domain.section.Section;
@@ -100,7 +101,27 @@ public class FareTest {
             Fare fare = new Fare();
             List<Line> lines = List.of(이호선, 신분당선, 삼호선);
             fare.calculateDistanceBasedFare(35, lines);
-            assertThat(fare.getFare()).isEqualTo(2630L);
+            assertThat(fare.getFare()).isEqualTo(2130);
+        }
+
+        @DisplayName("경로 조회 시 청소년 로그인 사용자의 경우 350원을 공제한 금액의 20% 할인이 적용된다.")
+        @Test
+        void teenagerDiscount() {
+            Fare fare = new Fare();
+            List<Line> lines = List.of(이호선, 신분당선, 삼호선);
+            Member member = new Member("testemail@email.com", "testpassword", 13);
+            fare.calculateDistanceBasedFare(35, lines, member);
+            assertThat(fare.getFare()).isEqualTo(1424);
+        }
+
+        @DisplayName("경로 조회 시 청소년 로그인 사용자의 경우 350원을 공제한 금액의 50% 할인이 적용된다.")
+        @Test
+        void childrenDiscount() {
+            Fare fare = new Fare();
+            List<Line> lines = List.of(이호선, 신분당선, 삼호선);
+            Member member = new Member("testemail@email.com", "testpassword", 12);
+            fare.calculateDistanceBasedFare(35, lines, member);
+            assertThat(fare.getFare()).isEqualTo(890);
         }
     }
 }
