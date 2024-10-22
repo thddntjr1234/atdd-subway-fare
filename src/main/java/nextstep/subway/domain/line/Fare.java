@@ -1,6 +1,10 @@
 package nextstep.subway.domain.line;
 
+import nextstep.member.domain.Member;
+import nextstep.member.domain.MemberType;
+
 import java.util.List;
+import java.util.Optional;
 
 public class Fare {
     private static final long DEFAULT_FARE = 1250L;
@@ -37,8 +41,19 @@ public class Fare {
     }
 
     public void calculateDistanceBasedFare(long distance, List<Line> lines) {
-        calculateDistanceBasedFare(distance);
-        calculateHighestAdditionalFare(lines);
+        boolean hasAdditionalFare = lines.stream()
+                .anyMatch(line -> line.getAdditionalFare() > 0L);
+
+        if (hasAdditionalFare) {
+            calculateHighestAdditionalFare(lines);
+        } else {
+            calculateDistanceBasedFare(distance);
+        }
+    }
+
+    public void calculateDistanceBasedFare(long distance, List<Line> lines, Member member) {
+        calculateDistanceBasedFare(distance, lines);
+        calculateAgeDiscountFare(member);
     }
 
     private void calculateHighestAdditionalFare(List<Line> lines) {
@@ -50,6 +65,19 @@ public class Fare {
         this.fare += highestAdditionalFare;
     }
 
+    private void calculateAgeDiscountFare(Member member) {
+        if (member == null || member.getAge() == null) {
+            return;
+        }
+        Integer age = member.getAge();
+        MemberType memberType = MemberType.getMemberType(age);
+
+        if (memberType.equals(MemberType.TEENAGER)) {
+            this.fare = (long) ((this.fare - 350) * 0.8);
+        } else if (memberType.equals(MemberType.CHILDREN)) {
+            this.fare = (long) ((this.fare - 350) * 0.5);
+        }
+    }
 
     public Long getFare() {
         return fare;

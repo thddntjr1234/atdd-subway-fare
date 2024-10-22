@@ -36,7 +36,7 @@ public class FavoriteService {
 
         Station sourceStation = stationService.findByStationId(request.getSource());
         Station targetStation = stationService.findByStationId(request.getTarget());
-        pathService.findPath(sourceStation.getId(), targetStation.getId(), "DISTANCE");
+        pathService.findPath(sourceStation.getId(), targetStation.getId(), "DISTANCE", loginMember);
 
         favoriteRepository.findAllByMember(member).stream()
                 .filter(favorite -> favorite.isSamePath(sourceStation, targetStation))

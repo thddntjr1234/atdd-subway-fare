@@ -2,6 +2,9 @@ package nextstep.subway.domain.path;
 
 import java.util.Map;
 
+import nextstep.auth.domain.LoginMember;
+import nextstep.member.application.MemberService;
+import nextstep.member.domain.Member;
 import nextstep.subway.domain.line.Fare;
 import nextstep.subway.domain.line.Line;
 import nextstep.subway.domain.line.LineRepository;
@@ -19,17 +22,21 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 public class PathService {
+    private MemberService memberService;
     private StationRepository stationRepository;
     private LineRepository lineRepository;
     private Map<String, PathFinder> finders;
 
-    public PathService(StationRepository stationRepository, LineRepository lineRepository, Map<String, PathFinder> finders) {
+    public PathService(MemberService memberService, StationRepository stationRepository, LineRepository lineRepository, Map<String, PathFinder> finders) {
+        this.memberService = memberService;
         this.stationRepository = stationRepository;
         this.lineRepository = lineRepository;
         this.finders = finders;
     }
 
-    public PathResponse findPath(Long source, Long tartget, String type) {
+    public PathResponse findPath(Long source, Long tartget, String type, LoginMember loginMember) {
+        Member member = memberService.findMemberByEmail(loginMember.getEmail()).orElse(null);
+
         List<Line> lines = lineRepository.findAll();
         List<Section> sections = lines.stream()
                 .map(Line::getSections)
@@ -50,7 +57,7 @@ public class PathService {
         Long distance = pathFinder.getDistance();
         Long transitTime = pathFinder.getTransitTime();
         Fare fare = new Fare();
-        fare.calculateDistanceBasedFare(distance, lines);
+        fare.calculateDistanceBasedFare(distance, lines, member);
 
         return new PathResponse(stationResponses, distance, transitTime, fare.getFare());
     }
