@@ -23,7 +23,18 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+
+        AuthenticationPrincipal annotation = parameter.getParameterAnnotation(AuthenticationPrincipal.class);
         String authorization = webRequest.getHeader("Authorization");
+
+        // 비로그인 유저 요청을 허용한 경우 인증 헤더가 null인 경우만 비회원 객체를 반환
+        if (annotation.acceptGuestRequest()) {
+            if (authorization == null) {
+                // 비로그인 상태
+                return new LoginMember("");
+            }
+        }
+
         if (authorization == null) {
             throw new AuthenticationException();
         }
